@@ -30,7 +30,7 @@ struct WeightLineChart: View {
             NavigationLink(value: selectedStat) {
                 HStack() {
                     VStack(alignment: .leading) {
-                        Label("Steps", systemImage: "figure")
+                        Label("Weights", systemImage: "figure")
                             .font(.title3.bold())
                             .foregroundStyle(selectedStat.tint)
                         
@@ -48,26 +48,26 @@ struct WeightLineChart: View {
             .padding(.bottom, 12)
             
             Chart {
-                ForEach(chartData) { weight in
-                    if let selectedHealthMetric {
-                        RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
-                            .foregroundStyle(Color.secondary.opacity(0.3))
-                            .offset(y: -10)
-                            .annotation(position: .top,
-                                        spacing: 0,
-                                        overflowResolution: .init(x: .fit(to: .chart),
-                                                                  y: .disabled)) { annotationView }
+                if let selectedHealthMetric {
+                    RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
+                        .foregroundStyle(Color.secondary.opacity(0.3))
+                        .offset(y: -10)
+                        .annotation(position: .top,
+                                    spacing: 0,
+                                    overflowResolution: .init(x: .fit(to: .chart),
+                                                              y: .disabled)) { annotationView }
+                }
+                
+                //Add editing
+                RuleMark(y: .value("Goal", 155))
+                    .foregroundStyle(.mint)
+                    .lineStyle(.init(lineWidth: 1, dash: [5]))
+                    .annotation(alignment: .leading) {
+                        Text("Goal")
+                            .foregroundStyle(Color.secondary)
+                            .font(.caption)
                     }
-                    
-                    //Add editing
-                    RuleMark(y: .value("Goal", 155))
-                        .foregroundStyle(.mint)
-                        .lineStyle(.init(lineWidth: 1, dash: [5]))
-                        .annotation(alignment: .leading) {
-                            Text("Goal")
-                                .foregroundStyle(Color.secondary)
-                                .font(.caption)
-                        }
+                ForEach(chartData) { weight in
                     
                     AreaMark(x: .value("Day", weight.date, unit: .day),
                              yStart: .value("Value", weight.value),
@@ -109,7 +109,7 @@ struct WeightLineChart: View {
             Text(selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
                 .foregroundStyle(.secondary)
-                
+            
             Text(selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(1)))
                 .fontWeight(.heavy)
                 .foregroundStyle(selectedStat.tint)
