@@ -24,7 +24,7 @@ struct WeightLineChart: View {
                     VStack(alignment: .leading) {
                         Label("Steps", systemImage: "figure")
                             .font(.title3.bold())
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(selectedStat.tint)
                         
                         Text("Avg: 180 lbs")
                             .font(.caption)
@@ -54,13 +54,13 @@ struct WeightLineChart: View {
                     AreaMark(x: .value("Day", weight.date, unit: .day),
                              yStart: .value("Value", weight.value),
                              yEnd: .value("Min Value", minValue))
-                    .foregroundStyle(Gradient(colors: [.indigo.opacity(0.5), .clear]))
+                    .foregroundStyle(Gradient(colors: [selectedStat.tint.opacity(0.5), .clear]))
                     .interpolationMethod(.catmullRom)
                     
                     
                     LineMark(x: .value("Day",  weight.date, unit: .day),
                              y: .value("Value", weight.value))
-                    .foregroundStyle(.indigo)
+                    .foregroundStyle(selectedStat.tint)
                     .interpolationMethod(.catmullRom)
                     .symbol(.circle)
                     

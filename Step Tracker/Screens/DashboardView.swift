@@ -53,9 +53,11 @@ struct DashboardView: View {
                     }
                     .pickerStyle(.segmented)
                     
-                    StepBarChart(selectedStat: selectedStat, chartData: hkManager.stepData)
+                    StepBarChart(selectedStat: selectedStat,
+                                 chartData: hkManager.stepData)
                     
-                    StepPieChart(chartData: ChartMath.averageWeekdayCount(for: hkManager.stepData))
+                    StepPieChart(selectedStat: selectedStat,
+                                 chartData: ChartMath.averageWeekdayCount(for: hkManager.stepData))
                 }
             }
             .padding()
