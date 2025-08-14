@@ -60,13 +60,25 @@ struct HealthDataListView: View {
                         Task {
                             switch metric {
                             case .steps:
-                                await hkManager.addStepData(for: addDataDate, value: Double(valueToAdd)!)
-                                await hkManager.fetchStepCount()
-                                isShowingAddData = false
+                                do {
+                                    try await hkManager.addStepData(for: addDataDate, value: Double(valueToAdd)!)
+                                    try await hkManager.fetchStepCount()
+                                    isShowingAddData = false
+                                } catch STError.sharingDenied(let quantityType){
+                                    print("❌ sharing denied for \(quantityType)")
+                                } catch {
+                                    print("❌ Data List View Unable to complete request")
+                                }
                             case .weight:
-                                await hkManager.addWeightData(for: addDataDate, value: Double(valueToAdd)!)
-                                await hkManager.fetchWeights()
-                                isShowingAddData = false
+                                do {
+                                    try await hkManager.addWeightData(for: addDataDate, value: Double(valueToAdd)!)
+                                    try await hkManager.fetchWeights()
+                                    isShowingAddData = false
+                                } catch STError.sharingDenied(let quantityType){
+                                    print("❌ sharing denied for \(quantityType)")
+                                } catch {
+                                    print("❌ Data List View Unable to complete request")
+                                }
                             }
                         }
                     }

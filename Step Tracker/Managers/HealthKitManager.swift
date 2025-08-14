@@ -86,7 +86,7 @@ enum STError: Error {
         }
     }
     
-    func fetchWeightsForDifferentials() async throws {
+    func fetchWeightForDifferentials() async throws {
         guard store.authorizationStatus(for: HKQuantityType(.bodyMass)) != .notDetermined else {
             throw STError.authNotDetermined
         }
