@@ -21,6 +21,7 @@ struct StepPieChart: View {
         }
     }
     
+    var selectedStat: HealthMetricContext
     var chartData: [WeekdayChartData]
     
     var body: some View {
@@ -28,7 +29,7 @@ struct StepPieChart: View {
             VStack(alignment: .leading) {
                 Label("Averages", systemImage: "calendar")
                     .font(.title3.bold())
-                    .foregroundStyle(.pink)
+                    .foregroundStyle(selectedStat.tint)
                 
                 Text("Last 28 Days")
                     .font(.caption)
@@ -42,7 +43,7 @@ struct StepPieChart: View {
                                innerRadius: .ratio(0.618),
                                outerRadius: selectedWeekday?.date.weekdayInt == weekday.date.weekdayInt ? 140 : 110,
                                angularInset: 1)
-                    .foregroundStyle(.pink.gradient)
+                    .foregroundStyle(selectedStat.tint.gradient)
                     .cornerRadius(6)
                     .opacity(selectedWeekday?.date.weekdayInt == weekday.date.weekdayInt ? 1.0 : 0.3)
                 }
@@ -77,5 +78,6 @@ struct StepPieChart: View {
 }
 
 #Preview {
-    StepPieChart(chartData: ChartMath.averageWeekdayCount(for: HealthMetric.mockData))
+    StepPieChart(selectedStat: .steps,
+                 chartData: ChartMath.averageWeekdayCount(for: MockData.steps))
 }
