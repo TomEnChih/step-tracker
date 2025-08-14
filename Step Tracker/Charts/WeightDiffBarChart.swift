@@ -77,9 +77,13 @@ struct WeightDiffBarChart: View {
                 .font(.footnote.bold())
                 .foregroundStyle(.secondary)
             
-            Text(selectedWeightMetric?.value ?? 0, format: .number.precision(.fractionLength(2)))
+            let value = selectedWeightMetric?.value ?? 0
+            let isPositive = value >= 0
+            let color = isPositive ? selectedStat.tint : Color.mint
+
+            Text("\(isPositive ? "+" : "")\(value, format: .number.precision(.fractionLength(2)))")
                 .fontWeight(.heavy)
-                .foregroundStyle((selectedWeightMetric?.value ?? 0) >= 0 ? selectedStat.tint : Color.mint)
+                .foregroundStyle(color)
         }
         .padding(12)
         .background(
