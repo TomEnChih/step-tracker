@@ -37,9 +37,10 @@ enum HealthMetricContext: CaseIterable, Identifiable {
 struct DashboardView: View {
     
     @Environment(HealthKitManager.self) private var hkManager
-    @AppStorage("hasSeenPermissionPriming") private var hasSeenPermissionPriming = false
     @State private var isShowingPermissionPrimingSheet = false
     @State private var selectedStat: HealthMetricContext = .steps
+    @State private var isShowingAlert = false
+    @State private var fetchError: STError = .noData
     
     var body: some View {
         NavigationStack {
@@ -69,9 +70,19 @@ struct DashboardView: View {
             }
             .padding()
             .task {
-                await hkManager.fetchStepCount()
-                await hkManager.fetchWeights()
-                isShowingPermissionPrimingSheet = !hasSeenPermissionPriming
+                do {
+                    try await hkManager.fetchStepCount()
+                    try await hkManager.fetchWeights()
+                    try await hkManager.fetchWeightForDifferentials()
+                } catch STError.authNotDetermined {
+                    isShowingPermissionPrimingSheet = true
+                } catch STError.noData {
+                    fetchError = .noData
+                    isShowingAlert = true
+                } catch {
+                    fetchError = .unableToCompleteRequest
+                    isShowingAlert = true
+                }
             }
             .navigationTitle("Dashboard")
             .navigationDestination(for: HealthMetricContext.self) { metric in
@@ -80,9 +91,13 @@ struct DashboardView: View {
             .sheet(isPresented: $isShowingPermissionPrimingSheet) {
                 // fetch health data
             } content: {
-                HealthKitPermissionPrimingView(hasSeen: $hasSeenPermissionPriming)
+                HealthKitPermissionPrimingView()
             }
-
+            .alert(isPresented: $isShowingAlert, error: fetchError) { _ in
+                //Actions
+            } message: { fetchError in
+                Text(fetchError.failureReason)
+            }
         }
         .tint(selectedStat.tint)
     }
