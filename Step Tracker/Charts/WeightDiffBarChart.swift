@@ -12,41 +12,26 @@ struct WeightDiffBarChart: View {
     @State private var rawSelectedDate: Date?
     @State private var hasDayChanged: Bool = false
     
-    var selectedStat: HealthMetricContext
-    var chartData: [WeekdayChartData]
+    let selectedStat: HealthMetricContext = .weight
+    var chartData: [DateValueChartData]
     
-    var selectedWeightMetric: WeekdayChartData? {
-        guard let rawSelectedDate else { return nil }
-        return chartData.first {
-            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
-        }
+    var selectedData: DateValueChartData? {
+        ChartHelper.parseSelectedData(from: chartData, in: rawSelectedDate)
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            VStack(alignment: .leading) {
-                Label("Average Weight Change", systemImage: "figure")
-                    .font(.title3.bold())
-                    .foregroundStyle(selectedStat.tint)
-                
-                Text("Per Weekday (Last 28 Days)")
-                    .font(.caption)
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
-            
+        let config = ChartContainerConfiguration(title: "Average Weight Change",
+                                                 symbol: "figure",
+                                                 subtitle: "Per Weekday (Last 28 Days)",
+                                                 context: selectedStat,
+                                                 isNav: false)
+        ChartContainer(config: config) {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar", title: "No Data", description: "There is no weight data from the Health App.")
             } else {
                 Chart {
-                    if let selectedWeightMetric {
-                        RuleMark(x: .value("Selected Metric", selectedWeightMetric.date, unit: .day))
-                            .foregroundStyle(Color.secondary.opacity(0.3))
-                            .offset(y: -10)
-                            .annotation(position: .top,
-                                        spacing: 0,
-                                        overflowResolution: .init(x: .fit(to: .chart),
-                                                                  y: .disabled)) { annotationView }
+                    if let selectedData {
+                        ChartAnnotationView(data: selectedData, context: selectedStat, isDiffChart: true)
                     }
                     
                     ForEach(chartData) { weekday in
@@ -71,8 +56,6 @@ struct WeightDiffBarChart: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .sensoryFeedback(.selection, trigger: hasDayChanged)
         .onChange(of: rawSelectedDate) { oldValue, newValue in
             if oldValue?.weekdayInt != newValue?.weekdayInt {
@@ -80,31 +63,8 @@ struct WeightDiffBarChart: View {
             }
         }
     }
-    
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(selectedWeightMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            let value = selectedWeightMetric?.value ?? 0
-            let isPositive = value >= 0
-            let color = isPositive ? selectedStat.tint : Color.mint
-
-            Text("\(isPositive ? "+" : "")\(value, format: .number.precision(.fractionLength(2)))")
-                .fontWeight(.heavy)
-                .foregroundStyle(color)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        )
-    }
 }
 
 #Preview {
-    WeightDiffBarChart(selectedStat: .weight,
-                       chartData: MockData.weightDiffs)
+    WeightDiffBarChart(chartData: MockData.weightDiffs)
 }

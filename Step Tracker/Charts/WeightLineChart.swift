@@ -12,54 +12,33 @@ struct WeightLineChart: View {
     @State private var rawSelectedDate: Date?
     @State private var hasDayChanged: Bool = false
     
-    var selectedStat: HealthMetricContext
-    var chartData: [HealthMetric]
+    let selectedStat: HealthMetricContext = .weight
+    var chartData: [DateValueChartData]
     
     var minValue: Double {
         chartData.map { $0.value }.min() ?? 0
     }
     
-    var selectedHealthMetric: HealthMetric? {
-        guard let rawSelectedDate else { return nil }
-        return chartData.first {
-            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
-        }
+    var avgValue: Double {
+        ChartHelper.averageValue(for: chartData)
+    }
+    
+    var selectedData: DateValueChartData? {
+        ChartHelper.parseSelectedData(from: chartData, in: rawSelectedDate)
     }
     
     var body: some View {
-        VStack {
-            NavigationLink(value: selectedStat) {
-                HStack() {
-                    VStack(alignment: .leading) {
-                        Label("Weights", systemImage: "figure")
-                            .font(.title3.bold())
-                            .foregroundStyle(selectedStat.tint)
-                        
-                        Text("Avg: 180 lbs")
-                            .font(.caption)
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                }
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
-            
+        let config = ChartContainerConfiguration(title: "Weights",
+                                                 symbol: "figure",
+                                                 subtitle: "Avg: \(Int(avgValue)) lbs",
+                                                 context: selectedStat)
+        ChartContainer(config: config) {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.line.downtrend.xyaxis", title: "No Data", description: "There is no weight data from the Health App.")
             } else {
                 Chart {
-                    if let selectedHealthMetric {
-                        RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
-                            .foregroundStyle(Color.secondary.opacity(0.3))
-                            .offset(y: -10)
-                            .annotation(position: .top,
-                                        spacing: 0,
-                                        overflowResolution: .init(x: .fit(to: .chart),
-                                                                  y: .disabled)) { annotationView }
+                    if let selectedData {
+                        ChartAnnotationView(data: selectedData, context: selectedStat, isDiffChart: false)
                     }
                     
                     //Add editing
@@ -105,8 +84,6 @@ struct WeightLineChart: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .sensoryFeedback(.selection, trigger: hasDayChanged)
         .onChange(of: rawSelectedDate) { oldValue, newValue in
             if oldValue?.weekdayInt != newValue?.weekdayInt {
@@ -114,26 +91,8 @@ struct WeightLineChart: View {
             }
         }
     }
-    
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(1)))
-                .fontWeight(.heavy)
-                .foregroundStyle(selectedStat.tint)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        )
-    }
 }
 
 #Preview {
-    WeightLineChart(selectedStat: .weight, chartData: MockData.weights)
+    WeightLineChart(chartData: ChartHelper.convert(data: MockData.weights))
 }
