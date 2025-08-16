@@ -23,17 +23,7 @@ struct WeightDiffBarChart: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            VStack(alignment: .leading) {
-                Label("Average Weight Change", systemImage: "figure")
-                    .font(.title3.bold())
-                    .foregroundStyle(selectedStat.tint)
-                
-                Text("Per Weekday (Last 28 Days)")
-                    .font(.caption)
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
+        ChartContainer(title: "Average Weight Change", symbol: "figure", subtitle: "Per Weekday (Last 28 Days)", context: selectedStat, isNav: false) {
             
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar", title: "No Data", description: "There is no weight data from the Health App.")
@@ -71,8 +61,6 @@ struct WeightDiffBarChart: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .sensoryFeedback(.selection, trigger: hasDayChanged)
         .onChange(of: rawSelectedDate) { oldValue, newValue in
             if oldValue?.weekdayInt != newValue?.weekdayInt {
@@ -90,7 +78,7 @@ struct WeightDiffBarChart: View {
             let value = selectedWeightMetric?.value ?? 0
             let isPositive = value >= 0
             let color = isPositive ? selectedStat.tint : Color.mint
-
+            
             Text("\(isPositive ? "+" : "")\(value, format: .number.precision(.fractionLength(2)))")
                 .fontWeight(.heavy)
                 .foregroundStyle(color)

@@ -11,7 +11,7 @@ import Charts
 struct StepBarChart: View {
     @State private var rawSelectedDate: Date?
     @State private var hasDayChanged: Bool = false
-
+    
     var selectedStat: HealthMetricContext
     var chartData: [HealthMetric]
     
@@ -29,26 +29,7 @@ struct StepBarChart: View {
     }
     
     var body: some View {
-        VStack {
-            NavigationLink(value: selectedStat) {
-                HStack() {
-                    VStack(alignment: .leading) {
-                        Label("Steps", systemImage: "figure.walk")
-                            .font(.title3.bold())
-                            .foregroundStyle(selectedStat.tint)
-                        
-                        Text("Avg: \(Int(avgStepCount)) steps")
-                            .font(.caption)
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                }
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
+        ChartContainer(title: "Steps", symbol: "figure.walk", subtitle: "Avg: \(Int(avgStepCount)) steps", context: selectedStat) {
             
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar",
@@ -95,8 +76,6 @@ struct StepBarChart: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .sensoryFeedback(.selection, trigger: hasDayChanged)
         .onChange(of: rawSelectedDate) { oldValue, newValue in
             if oldValue?.weekdayInt != newValue?.weekdayInt {
@@ -110,7 +89,7 @@ struct StepBarChart: View {
             Text(selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
                 .foregroundStyle(.secondary)
-                
+            
             Text(selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
                 .fontWeight(.heavy)
                 .foregroundStyle(selectedStat.tint)
@@ -125,5 +104,5 @@ struct StepBarChart: View {
 }
 
 #Preview {
-    StepBarChart(selectedStat: .steps, chartData: [])
+    StepBarChart(selectedStat: .steps, chartData: MockData.steps)
 }
