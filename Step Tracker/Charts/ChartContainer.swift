@@ -7,18 +7,21 @@
 
 import SwiftUI
 
-struct ChartContainer<Content: View>: View {
+struct ChartContainerConfiguration {
     let title: String
     let symbol: String
     let subtitle: String
     let context: HealthMetricContext
     var isNav: Bool = true
-    
+}
+
+struct ChartContainer<Content: View>: View {
+    let config: ChartContainerConfiguration
     @ViewBuilder var content: () -> Content
     
     var body: some View {
         VStack(alignment: .leading) {
-            if isNav {
+            if config.isNav {
                 navigationLinkView
             } else {
                 titleView
@@ -32,7 +35,7 @@ struct ChartContainer<Content: View>: View {
     }
     
     var navigationLinkView: some View {
-        NavigationLink(value: context) {
+        NavigationLink(value: config.context) {
             HStack() {
                 titleView
                 Spacer()
@@ -46,22 +49,22 @@ struct ChartContainer<Content: View>: View {
     
     var titleView: some View {
         VStack(alignment: .leading) {
-            Label(title, systemImage: symbol)
+            Label(config.title, systemImage: config.symbol)
                 .font(.title3.bold())
-                .foregroundStyle(context.tint)
+                .foregroundStyle(config.context.tint)
             
-            Text(subtitle)
+            Text(config.subtitle)
                 .font(.caption)
         }
     }
 }
 
 #Preview {
-    ChartContainer(title: "test title",
-                   symbol: "figure.walk",
-                   subtitle: "test subtitle",
-                   context: .steps,
-                   isNav: true) {
+    ChartContainer(config: .init(title: "test title",
+                                 symbol: "figure.walk",
+                                 subtitle: "test subtitle",
+                                 context: .steps,
+                                 isNav: true)) {
         Text("Chart Goes Here")
             .frame(minHeight: 150)
     }
