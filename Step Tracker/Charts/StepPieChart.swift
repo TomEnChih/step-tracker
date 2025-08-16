@@ -12,7 +12,7 @@ struct StepPieChart: View {
     @State private var rawSelectedChartValue: Double? = 0
     @State private var hasDayChanged: Bool = false
     
-    var selectedWeekday: WeekdayChartData? {
+    var selectedWeekday: DateValueChartData? {
         guard let rawSelectedChartValue else { return nil }
         var total = 0.0
         
@@ -22,8 +22,8 @@ struct StepPieChart: View {
         }
     }
     
-    var selectedStat: HealthMetricContext
-    var chartData: [WeekdayChartData]
+    let selectedStat: HealthMetricContext = .steps
+    var chartData: [DateValueChartData]
     
     var body: some View {
         ChartContainer(title: "Averages", symbol: "calendar", subtitle: "Last 28 Days", context: selectedStat, isNav: false) {
@@ -78,6 +78,5 @@ struct StepPieChart: View {
 }
 
 #Preview {
-    StepPieChart(selectedStat: .steps,
-                 chartData: ChartMath.averageWeekdayCount(for: MockData.steps))
+    StepPieChart(chartData: ChartMath.averageWeekdayCount(for: MockData.steps))
 }
