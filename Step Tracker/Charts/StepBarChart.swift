@@ -15,8 +15,8 @@ struct StepBarChart: View {
     let selectedStat: HealthMetricContext = .steps
     var chartData: [DateValueChartData]
     
-    var avgValue: Double {
-        ChartHelper.averageValue(for: chartData)
+    var avgValue: Int {
+        Int(chartData.map { $0.value }.average)
     }
     
     var selectedData: DateValueChartData? {
@@ -26,47 +26,49 @@ struct StepBarChart: View {
     var body: some View {
         let config = ChartContainerConfiguration(title: "Steps",
                                                  symbol: "figure.walk",
-                                                 subtitle: "Avg: \(Int(avgValue)) steps",
+                                                 subtitle: "Avg: \(avgValue.formatted()) steps",
                                                  context: selectedStat)
         ChartContainer(config: config) {
-            
+            Chart {
+                if let selectedData {
+                    ChartAnnotationView(data: selectedData, context: selectedStat, isDiffChart: false)
+                }
+                
+                if !chartData.isEmpty {
+                    RuleMark(y: .value("Average", avgValue))
+                        .foregroundStyle(Color.secondary)
+                        .lineStyle(.init(lineWidth: 1, dash: [5]))
+                }
+                
+                ForEach(chartData) { steps in
+                    BarMark(x: .value("Date", steps.date, unit: .day),
+                            y: .value("Steps", steps.value)
+                    )
+                    .foregroundStyle(selectedStat.tint.gradient)
+                    .opacity(rawSelectedDate == nil || steps.date == selectedData?.date ? 1.0 : 0.3)
+                }
+            }
+            .frame(height: 150)
+            .chartXSelection(value: $rawSelectedDate.animation(.easeInOut))
+            .chartXAxis {
+                AxisMarks {
+                    AxisValueLabel(format: .dateTime.month(.defaultDigits).day())
+                }
+            }
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisGridLine()
+                        .foregroundStyle(Color.secondary.opacity(0.3))
+                    
+                    AxisValueLabel((value.as(Double.self) ?? 0).formatted(.number.notation(.compactName)))
+                }
+            }
+        }
+        .overlay {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar",
                                title: "No Data",
                                description: "There is no step count data from the Health App.")
-            } else {
-                Chart {
-                    if let selectedData {
-                        ChartAnnotationView(data: selectedData, context: selectedStat, isDiffChart: false)
-                    }
-                    
-                    RuleMark(y: .value("Average", avgValue))
-                        .foregroundStyle(Color.secondary)
-                        .lineStyle(.init(lineWidth: 1, dash: [5]))
-                    
-                    ForEach(chartData) { steps in
-                        BarMark(x: .value("Date", steps.date, unit: .day),
-                                y: .value("Steps", steps.value)
-                        )
-                        .foregroundStyle(selectedStat.tint.gradient)
-                        .opacity(rawSelectedDate == nil || steps.date == selectedData?.date ? 1.0 : 0.3)
-                    }
-                }
-                .frame(height: 150)
-                .chartXSelection(value: $rawSelectedDate.animation(.easeInOut))
-                .chartXAxis {
-                    AxisMarks {
-                        AxisValueLabel(format: .dateTime.month(.defaultDigits).day())
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks { value in
-                        AxisGridLine()
-                            .foregroundStyle(Color.secondary.opacity(0.3))
-                        
-                        AxisValueLabel((value.as(Double.self) ?? 0).formatted(.number.notation(.compactName)))
-                    }
-                }
             }
         }
         .sensoryFeedback(.selection, trigger: hasDayChanged)
@@ -79,5 +81,5 @@ struct StepBarChart: View {
 }
 
 #Preview {
-    StepBarChart(chartData: ChartHelper.convert(data: MockData.steps))
+    StepBarChart(chartData: ChartHelper.convert(data: []))
 }
