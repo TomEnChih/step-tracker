@@ -19,8 +19,8 @@ struct WeightLineChart: View {
         chartData.map { $0.value }.min() ?? 0
     }
     
-    var avgString: String {
-        chartData.map { $0.value }.average.formatted(.number.precision(.fractionLength(1)))
+    var avgString: Double {
+        chartData.map { $0.value }.average
     }
     
     var selectedData: DateValueChartData? {
@@ -28,11 +28,7 @@ struct WeightLineChart: View {
     }
     
     var body: some View {
-        let config = ChartContainerConfiguration(title: "Weights",
-                                                 symbol: "figure",
-                                                 subtitle: "Avg: \(avgString) lbs",
-                                                 context: selectedStat)
-        ChartContainer(config: config) {
+        ChartContainer(chartType: .weightLine(average: avgString)) {
             Chart {
                 if let selectedData {
                     ChartAnnotationView(data: selectedData, context: selectedStat, isDiffChart: false)
