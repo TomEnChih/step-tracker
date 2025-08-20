@@ -27,9 +27,13 @@ struct WeightDiffBarChart: View {
                 }
                 
                 ForEach(chartData) { weekday in
-                    BarMark(x: .value("Date", weekday.date, unit: .day),
-                            y: .value("Weight Diff", weekday.value))
-                    .foregroundStyle(weekday.value >= 0 ? selectedStat.tint.gradient : Color.mint.gradient)
+                    Plot {
+                        BarMark(x: .value("Date", weekday.date, unit: .day),
+                                y: .value("Weight Diff", weekday.value))
+                        .foregroundStyle(weekday.value >= 0 ? selectedStat.tint.gradient : Color.mint.gradient)
+                    }
+                    .accessibilityLabel(weekday.date.weekdayTitle)
+                    .accessibilityValue("\(weekday.value.formatted(.number.precision(.fractionLength(1)).sign(strategy: .always()))) pounds")
                 }
             }
             .frame(height: 240)

@@ -43,21 +43,25 @@ struct WeightLineChart: View {
                             .foregroundStyle(Color.secondary)
                             .font(.caption)
                     }
+                    .accessibilityHidden(true)
+
                 ForEach(chartData) { weight in
-                    
-                    AreaMark(x: .value("Day", weight.date, unit: .day),
-                             yStart: .value("Value", weight.value),
-                             yEnd: .value("Min Value", minValue))
-                    .foregroundStyle(Gradient(colors: [selectedStat.tint.opacity(0.5), .clear]))
-                    .interpolationMethod(.catmullRom)
-                    
-                    
-                    LineMark(x: .value("Day",  weight.date, unit: .day),
-                             y: .value("Value", weight.value))
-                    .foregroundStyle(selectedStat.tint)
-                    .interpolationMethod(.catmullRom)
-                    .symbol(.circle)
-                    
+                    Plot {
+                        AreaMark(x: .value("Day", weight.date, unit: .day),
+                                 yStart: .value("Value", weight.value),
+                                 yEnd: .value("Min Value", minValue))
+                        .foregroundStyle(Gradient(colors: [selectedStat.tint.opacity(0.5), .clear]))
+                        .interpolationMethod(.catmullRom)
+                        
+                        
+                        LineMark(x: .value("Day",  weight.date, unit: .day),
+                                 y: .value("Value", weight.value))
+                        .foregroundStyle(selectedStat.tint)
+                        .interpolationMethod(.catmullRom)
+                        .symbol(.circle)
+                    }
+                    .accessibilityLabel(weight.date.accesibilityDate)
+                    .accessibilityValue("\(weight.value.formatted(.number.precision(.fractionLength(1))))) pounds")
                 }
             }
             .frame(height: 150)

@@ -71,4 +71,17 @@ extension ChartType {
             "Per Weekday (Last 28 Days)"
         }
     }
+    
+    var accesssibilityLabel: String {
+        switch self {
+        case .stepBar(let average):
+            "Bar chart, step count, last 28 days, average steps per day: \(average) steps"
+        case .stepWeekdayPie:
+            "Pie Chart, average steps per weekday"
+        case .weightLine(let average):
+            "Line Chart, weight, avgerage weight: \(average.formatted(.number.precision(.fractionLength(1)))) pounds, goal weight: 155 pounds"
+        case .weightDiffBar:
+            "Bar Chart, average weight difference per weekday"
+        }
+    }
 }
