@@ -7,21 +7,13 @@
 
 import SwiftUI
 
-struct ChartContainerConfiguration {
-    let title: String
-    let symbol: String
-    let subtitle: String
-    let context: HealthMetricContext
-    var isNav: Bool = true
-}
-
 struct ChartContainer<Content: View>: View {
-    let config: ChartContainerConfiguration
+    let chartType: ChartType
     @ViewBuilder var content: () -> Content
     
     var body: some View {
         VStack(alignment: .leading) {
-            if config.isNav {
+            if chartType.isNav {
                 navigationLinkView
             } else {
                 titleView
@@ -35,7 +27,7 @@ struct ChartContainer<Content: View>: View {
     }
     
     var navigationLinkView: some View {
-        NavigationLink(value: config.context) {
+        NavigationLink(value: chartType.context) {
             HStack() {
                 titleView
                 Spacer()
@@ -45,26 +37,23 @@ struct ChartContainer<Content: View>: View {
         }
         .foregroundStyle(.secondary)
         .padding(.bottom, 12)
+        .accessibilityHint("Tap for data in list view")
     }
     
     var titleView: some View {
         VStack(alignment: .leading) {
-            Label(config.title, systemImage: config.symbol)
+            Label(chartType.title, systemImage: chartType.symbol)
                 .font(.title3.bold())
-                .foregroundStyle(config.context.tint)
+                .foregroundStyle(chartType.context.tint)
             
-            Text(config.subtitle)
+            Text(chartType.subtitle)
                 .font(.caption)
         }
     }
 }
 
 #Preview {
-    ChartContainer(config: .init(title: "test title",
-                                 symbol: "figure.walk",
-                                 subtitle: "test subtitle",
-                                 context: .steps,
-                                 isNav: true)) {
+    ChartContainer(chartType: .stepWeekdayPie) {
         Text("Chart Goes Here")
             .frame(minHeight: 150)
     }
