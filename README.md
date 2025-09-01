@@ -8,8 +8,7 @@ Step Tracker also allows you to upload new step or weight data to the Apple Heal
 * HealthKit
 * Swift Charts
 * Swift Algorithms
-* DocC
-* Git & GitHub
+* Unit Test
 
 # Animated Swift Charts
 https://github.com/user-attachments/assets/97df9a1a-5fbf-410c-a22d-ae24ccde29ed
